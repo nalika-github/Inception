@@ -7,18 +7,20 @@
 
 # this is only for the mysqld standalone daemon
 [mysqld]
-datadir			= /var/lib/mysql
-socket			= /run/mysqld/mysqld.sock
-bind_address		= *
-port			= 3306
-user			= mysql
+
 #
 # * Basic Settings
 #
 
+user                    = mysql
 pid-file                = /run/mysqld/mysqld.pid
 basedir                 = /usr
-#tmpdir                  = /tmp
+datadir                 = /var/lib/mysql
+tmpdir                  = /tmp
+port                   = 3306
+lc-messages-dir         = /usr/share/mysql
+lc-messages             = en_US
+skip-external-locking
 
 # Broken reverse DNS slows down connections considerably and name resolve is
 # safe to skip if there are no "host by domain name" access grants
@@ -26,6 +28,7 @@ basedir                 = /usr
 
 # Instead of skip-networking the default is now to listen only on
 # localhost which is more compatible and is not less secure.
+bind-address            = 0.0.0.0
 
 #
 # * Fine Tuning
@@ -109,7 +112,7 @@ collation-server      = utf8mb4_general_ci
 # you can put MariaDB-only options here
 [mariadb]
 
-# This group is only read by MariaDB-10.6 servers.
+# This group is only read by MariaDB-10.5 servers.
 # If you use the same .cnf file for MariaDB of different versions,
 # use this group for options that older servers don't understand
-[mariadb-10.6]
+[mariadb-10.5]

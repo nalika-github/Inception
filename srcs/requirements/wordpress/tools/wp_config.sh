@@ -1,33 +1,35 @@
 #!/bin/bash
 
-# Wait for MariaDB to launch
-sleep 10
-
+service php7.4-fpm start
 # Check if wp-config.php already exists
-if [ ! -f "/var/www/wordpress/wp-config.php" ];
+if [ ! -f "/var/www/html/wordpress/wp-config.php" ];
 then
-        wp core download --allow-root
+        # Create wp-config.php
+	cd /var/www/html/wordpress
+	cp wp-config-sample.php wp-config.php
 
-        # Create wp-config.php using wp-cli
-        wp config create        --allow-root \
-                                --dbname=$SQL_DATABASE \
-                                --dbuser=$SQL_USER \
-                                --dbpass=$SQL_PASSWORD \
-                                --dbhost=mariadb:3306 \
-                                --path='/var/www/wordpress'
+	# Init Wordpress Databases
+	sed -i "s/database_name_here/${SQL_DATABASE}/g" wp-config.php
+	sed -i "s/username_here/${SQL_USER}/g" wp-config.php
+	sed -i "s/password_here/${SQL_PASSWORD}/g" wp-config.php
+	sed -i "s/localhost/mariadb/g" wp-config.php
+
+	sleep 10
+
+	wp core install         --path=/var/www/html/wordpress \
+                        --url=$DOMAIN_NAME/ \
+                        --title=$WP_TITLE \
+                        --admin_user=$SQL_USER \
+                        --admin_password=$SQL_PASSWORD \
+                        --admin_email=$SQL_EMAIL \
+                        --skip-email --allow-root
+	wp user create          $USER $EMAIL --role=author \
+                        --user_pass=$PASSWORD --allow-root
 else
         echo "wp-config.php already exists. Skipping configuration."
 fi
 
-wp core install         --path=/var/www/html/wordpress \
-                        --url=$DOMAIN_NAME/ \
-                        --title=$WP_TITLE \
-                        --admin_user=$WP_ADMIN_USR \
-                        --admin_password=$WP_ADMIN_PWD \
-                        --admin_email=$WP_ADMIN_EMAIL \
-                        --skip-email --allow-root
-wp user create          $WP_USR $WP_EMAIL --role=author \
-                        --user_pass=$WP_PWD --allow-root
+service php7.4-fpm stop
 
 # Run the CMD from Dockerfile
 exec "$@"

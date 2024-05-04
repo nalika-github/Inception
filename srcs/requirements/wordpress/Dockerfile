@@ -9,22 +9,21 @@ RUN apt-get update && \
     vim \
     wget
 
-RUN wget https://fr.wordpress.org/wordpress-6.0-fr_FR.tar.gz -P /var/www \
-    && cd /var/www \
-    && tar -xzf wordpress-6.0-fr_FR.tar.gz \
-    && rm wordpress-6.0-fr_FR.tar.gz \
-    && wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-    && chmod +x wp-cli.phar \
-    && mv wp-cli.phar /usr/local/bin/wp \
-    && chown -R root:root /var/www/wordpress
+RUN	wget -O /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz && \
+	mkdir -p /var/www/html && \
+	tar -xzvf /tmp/wordpress.tar.gz -C /var/www/html/ && \
+	chown -R www-data:www-data /var/www/html/wordpress && \
+	chmod -R 755 /var/www/html/wordpress
 
-COPY ./conf/www.conf /etc/php/7.4/fpm/pool.d/
+RUN	wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar\
+	&& chmod +x wp-cli.phar\
+	&& mv wp-cli.phar /usr/local/bin/wp
 
-RUN mkdir /run/php
+COPY	./conf/www.conf /etc/php/7.4/fpm/pool.d/
 
-COPY ./tools/wp_config.sh /usr/local/bin/
+COPY	./tools/wp_config.sh /usr/local/bin/
 
-RUN chmod +x /usr/local/bin/wp_config.sh
+RUN	chmod +x /usr/local/bin/wp_config.sh
 
 ENTRYPOINT ["/usr/local/bin/wp_config.sh"]
 
