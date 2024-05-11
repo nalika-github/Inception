@@ -8,7 +8,15 @@ services:
     build:
       context: requirements/mariadb
       dockerfile: Dockerfile
-    env_file: .env
+    env_file:
+      - path: ./.env
+        required: true
+      - path: ../secrets/credentials.txt
+        required: false
+      - path: ../secrets/db_password.txt
+        required: false
+      - path: ../secrets/db_root_password.txt
+        required: false
     volumes:
       - mariadb:/var/lib/mysql
     restart: unless-stopped
@@ -17,8 +25,6 @@ services:
 
   nginx:
     container_name: nginx
-    volumes:
-      - wordpress:/var/www/html/wordpress
     networks:
       - network
     depends_on:
@@ -27,14 +33,32 @@ services:
     build:
       context: requirements/nginx
       dockerfile: Dockerfile
-    env_file: .env
+    env_file: 
+      - path: ./.env
+        required: true
+      - path: ../secrets/credentials.txt
+        required: false
+      - path: ../secrets/db_password.txt
+        required: false
+      - path: ../secrets/db_root_password.txt
+        required: false
+    volumes:
+      - wordpress:/var/www/html/wordpress
     ports:
       - "443:443"
     restart: on-failure
 
   wordpress:
     container_name: wordpress
-    env_file: .env
+    env_file:
+      - path: ./.env
+        required: true
+      - path: ../secrets/credentials.txt
+        required: false
+      - path: ../secrets/db_password.txt
+        required: false
+      - path: ../secrets/db_root_password.txt
+        required: false
     volumes:
       - wordpress:/var/www/html/wordpress
     networks:
